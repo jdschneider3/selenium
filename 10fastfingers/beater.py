@@ -5,7 +5,7 @@
 #   Updated to work with 10fastfingers.com v3.0 (April 14 2026)  
 
 # Arguments:
-#   1) [Optional] -e: Number of simulated typing mistakes to make
+#   1) [Optional] --err: The percentage of words on which to simulate typing errors.
 
 # Notes:
 #   Cmd to launch chrome in remote debugging mode:
@@ -15,6 +15,7 @@
 import argparse
 import time
 import random
+import string
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
@@ -27,6 +28,12 @@ def type_words():
     description="Simulates typing on the 10fastfingers.com typing speed test.")
   parser.add_argument("-e", "--err", type=int, default=0, help="The percentage of words on which to simulate typing errors.")
   args = parser.parse_args()
+
+  # Validate the percentage is between 0 and 100
+  if not (0 <= args.err <= 100):
+    parser.error("The --err argument must be an integer between 0 and 100.")
+
+  error_probability = args.err / 100.0
 
   chrome_options = Options()
   chrome_options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
@@ -42,7 +49,6 @@ def type_words():
   try:
     
     driver = webdriver.Chrome(options=chrome_options)
-    error_words = args.err
 
     # Focus on the typing input box
     input_area = driver.switch_to.active_element
@@ -87,7 +93,13 @@ def type_words():
 
       # Simulate typing of the target word into the input box
       for char in target_word.strip():
-        input_area.send_keys(char)
+        
+        # Roll for error (simple - random alpha)
+        if random.random() < error_probability:
+          input_area.send_keys(random.choice(string.ascii_letters))
+        else:
+          input_area.send_keys(char)
+        
         time.sleep(random.uniform(.00001, .00002)) # This controls the typing speed
 
       # Send a space before the next word
