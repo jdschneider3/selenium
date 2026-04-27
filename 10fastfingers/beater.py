@@ -25,7 +25,7 @@ def type_words():
   # Handle Argument(s)
   parser = argparse.ArgumentParser(
     description="Simulates typing on the 10fastfingers.com typing speed test.")
-  parser.add_argument("-e", "--error", type=int, default=0, help="The percentage of words on which to simulate typing errors.")
+  parser.add_argument("-e", "--err", type=int, default=0, help="The percentage of words on which to simulate typing errors.")
   args = parser.parse_args()
 
   chrome_options = Options()
@@ -42,7 +42,7 @@ def type_words():
   try:
     
     driver = webdriver.Chrome(options=chrome_options)
-    error_words = args.errors
+    error_words = args.err
 
     # Focus on the typing input box
     input_area = driver.switch_to.active_element
